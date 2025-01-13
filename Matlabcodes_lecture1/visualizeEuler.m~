@@ -1,0 +1,110 @@
+clear all;
+syms alpha beta gamma real;
+
+Rz = [cos(alpha) -sin(alpha) 0;... %Use ... to go to the next row. It looks better that way
+     sin(alpha) cos(alpha) 0;...
+     0 0 1];
+ 
+Ry = [cos(beta) 0 sin(beta);...
+    0 1 0;...
+    -sin(beta) 0 cos(beta)];
+
+Rx = [1 0 0;...
+    0 cos(gamma) -sin(gamma);...
+    0 sin(gamma) cos(gamma)];
+
+% R(z,y,x) = 1^R_2(alpha) * 2^R_3(beta) * 3^R_t(gamma)
+R = simplify(Rz*Ry*Rx);
+Rlatex = latex(R);
+
+%%
+close all;
+clc;
+%Angles of rotation matrix
+x0 = [1 0 0]';
+y0 = [0 1 0]';
+z0 = [0 0 1]';
+
+frame0.x = x0;
+frame0.y = y0;
+frame0.z = z0;
+
+angles.alpha = pi/6;
+angles.beta = pi/4;
+angles.gamma = pi/3;
+
+labels = {'x_t','y_t','z_t'};
+rotationtype = 'initialize';
+lastframe = rotate3D(frame0,angles,R,labels,rotationtype);
+hold on;
+%%
+frame0.x = x0;
+frame0.y = y0;
+frame0.z = z0;
+%Rotation around z axis
+rotationtype = 'other';
+for i = 1:5
+angles.alpha = 0;%z
+angles.beta = 0;%y
+angles.gamma = (-pi/3)/5;%x
+labels = {'x_1','y_1','z_1'};
+trans = 0.1;
+lastframe1 = rotate3D(frame0,angles,R,labels,rotationtype);
+frame0.x = lastframe1.x;
+frame0.y = lastframe1.y;
+frame0.z = lastframe1.z;
+pause(1);
+drawnow;
+end
+%%
+R = simplify(Rz*Ry*Rx);
+frame0 = lastframe1;
+%Rotation around y axis
+rotationtype = 'other';
+for i = 1:5
+angles.alpha = 0;
+angles.beta = -(pi/4)/5;
+angles.gamma = 0;
+
+labels = {'x_2','y_2','z_2'};
+lastframe2 = rotate3D(frame0,angles,R,labels,rotationtype);
+frame0.x = lastframe2.x;
+frame0.y = lastframe2.y;
+frame0.z = lastframe2.z;
+pause(1);
+drawnow;
+end
+%%
+R = simplify(Rz*Ry*Rx);
+frame0 = lastframe2;
+%Rotation around z axis
+rotationtype = 'other';
+for i = 1:5
+angles.alpha = (pi/6)/5;
+angles.beta = 0;
+angles.gamma = 0;
+
+labels = {'x_3','y_3','z_3'};
+trans = 0.1;
+lastframe3 = rotate3D(frame0,angles,R,labels,rotationtype);
+
+frame0.x = lastframe3.x;
+frame0.y = lastframe3.y;
+frame0.z = lastframe3.z;
+pause(1);
+drawnow;
+end
+%%
+RR = eval(R)
+%Determinant of R
+dRR = det(RR);
+disp(['Determinant of R: ', num2str(dRR)]);
+%Orthonormality of R
+R1 = RR(:,1); R2 = RR(:,2); R3 = RR(:,3);
+
+disp(['Norm of R1: ',num2str(norm(R1)), ', norm of R2: ',num2str(norm(R2)), ', norm of R3: ',num2str(norm(R3))]);
+disp(['R1 dot R2: ', num2str(R1'*R2/(norm(R1)*norm(R2)))]);
+disp(['R1 dot R3: ', num2str(R1'*R3/(norm(R1)*norm(R3)))]);
+disp(['R2 dot R3: ', num2str(R2'*R3/(norm(R2)*norm(R3)))]);
+
+
